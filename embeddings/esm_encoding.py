@@ -8,11 +8,25 @@ from tqdm import tqdm
 os.makedirs("embeddings", exist_ok=True)
 
 print("Loading protein language model and tokenizer...")
-model_name = (
-    "facebook/esm1b_t33_650M_UR50S" 
-)
+model_name = "facebook/esm2_t6_8M_UR50D"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModel.from_pretrained(model_name)
+base_model = AutoModel.from_pretrained(model_name)
+
+
+class ESMWithDimReduction(torch.nn.Module):
+    def __init__(self, base_model, output_dim=128):
+        super().__init__()
+        self.base_model = base_model
+        self.dim_reduction = torch.nn.Linear(base_model.config.hidden_size, output_dim)
+
+    def forward(self, **inputs):
+        outputs = self.base_model(**inputs)
+        reduced_embeddings = self.dim_reduction(outputs.last_hidden_state)
+        outputs.last_hidden_state = reduced_embeddings
+        return outputs
+
+
+model = ESMWithDimReduction(base_model, output_dim=128)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = model.to(device)
