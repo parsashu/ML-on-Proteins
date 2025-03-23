@@ -1,1 +1,3 @@
 datasets/uniprot_sprot.fasta
+images/
+.venv/
