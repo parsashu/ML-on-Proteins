@@ -26,7 +26,7 @@ plt.xlabel("Embedding Dimension")
 plt.ylabel("Sequence")
 plt.show()
 
-token_embeddings = outputs.last_hidden_state[0] 
+token_embeddings = outputs.last_hidden_state[0]
 plt.figure(figsize=(12, 8))
 sns.heatmap(token_embeddings.numpy()[:, :20], cmap="viridis")
 plt.title("Per-token Embeddings (first 20 dimensions)")
@@ -49,3 +49,13 @@ plt.title("PCA of Token Embeddings")
 plt.xlabel("PC1")
 plt.ylabel("PC2")
 plt.show()
+
+# Unembedding the sequence
+print("\nUnembedding the sequence:")
+tokens = tokenizer.convert_ids_to_tokens(inputs.input_ids[0])
+amino_acids = [token.replace("<", "").replace(">", "") for token in tokens]
+amino_acids = [aa for aa in amino_acids if aa not in ["cls", "pad", "eos", "mask"]]
+unembedded_sequence = "".join(amino_acids)
+print("Original sequence:", sequence)
+print("Unembedded sequence:", unembedded_sequence)
+print("Equal:", sequence == unembedded_sequence)
