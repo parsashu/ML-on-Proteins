@@ -2,4 +2,3 @@ datasets/uniprot_sprot.fasta
 datasets/0temp.tsv
 images/
 .venv/
-uniprot_both_taxon40674.fasta
