@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv("datasets/merged.tsv", sep="\t")
+df = pd.read_csv("datasets/8temp.tsv", sep="\t")
 total_rows = len(df)
 
 df_no_duplicates = df.drop_duplicates(keep="last")
