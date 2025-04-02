@@ -1,7 +1,7 @@
 datasets/uniprot_sprot.fasta
 datasets/0temp.tsv
 datasets/tempCodeRunnerFile.py
-datasets/features.csv
+datasets/phase1/features.csv
 images/
 .venv/
 .vscode/
