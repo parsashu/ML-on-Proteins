@@ -1,3 +1,10 @@
+"""
+Protein Sequence Extraction Utility
+
+This script retrieves protein sequences from UniProt IDs using both local database
+and UniProt REST API. It processes a TSV file containing UniProt IDs and produces
+an output file with the corresponding protein sequences.
+"""
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -5,7 +12,7 @@ from Bio import SeqIO
 from io import StringIO
 import pandas as pd
 
-raw_file = "datasets/8temp.tsv"
+raw_file = "datasets/raw_data.tsv"
 dataset = "datasets/protein_seq.tsv"
 
 def get_sequence_from_uniprot(uniprot_id, max_retries=5):
@@ -64,6 +71,7 @@ def process_uniprot_ids(input_file, output_file, use_api=True):
             if uniprot_id in uniprot_dict:
                 found_sequences[uniprot_id] = uniprot_dict[uniprot_id]
         
+        # API
         api_found = 0
         if use_api:
             remaining_ids = [id for id in unique_uniprot_ids if id not in found_sequences]
