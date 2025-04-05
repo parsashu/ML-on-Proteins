@@ -38,6 +38,7 @@ To set up the project environment, follow these steps:
    ```
    This will create protein_seq.tsv with the extracted sequences from UniProt IDs.
 
+```
 ## Folder Structure
 ├── datasets/
 │   ├── basic_statictical/
@@ -58,6 +59,7 @@ To set up the project environment, follow these steps:
 ├── requirements.txt
 ├── README.md
 └── .gitignore
+```
 
 ## Data Collection
 The dataset for this project is obtained from the ProThermDB database. This database allows users to select features for display and perform searches.
