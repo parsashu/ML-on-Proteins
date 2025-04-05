@@ -27,6 +27,17 @@ To set up the project environment, follow these steps:
    pip install -r requirements.txt
    ```
 
+4. (Optional) If you want to download the UniProt database, run:
+```
+python download_uniprot.py
+```
+
+5. (Optional) If you want to extract protein sequences for raw_data.tsv, run:
+```
+python datasets/seq_extract.py
+```
+This will create protein_seq.tsv with the extracted sequences from UniProt IDs.
+
 ## Data Collection
 Data for this project is collected from the ProThermDB database, which specializes in thermodynamic properties of proteins. The database allows selection of specific features through its browse -> search functionality.
 
