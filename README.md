@@ -38,8 +38,8 @@ To set up the project environment, follow these steps:
    ```
    This will create protein_seq.tsv with the extracted sequences from UniProt IDs.
 
-```
 ## Folder Structure
+```
 ├── datasets/
 │   ├── basic_statictical/
 │   ├── phase1/

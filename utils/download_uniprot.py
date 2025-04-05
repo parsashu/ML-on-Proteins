@@ -6,6 +6,7 @@ import shutil
 
 
 def download_uniprot():
+    """Download the UniProt Swiss-Prot database."""
     url = "https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz"
 
     if not os.path.exists("datasets"):
