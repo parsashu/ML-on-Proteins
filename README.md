@@ -29,12 +29,12 @@ To set up the project environment, follow these steps:
 
 4. (Optional) If you want to download the UniProt database, run:
    ```
-   python download_uniprot.py
+   python utils/download_uniprot.py
    ```
 
 5. (Optional) If you want to extract protein sequences for raw_data.tsv, run:
    ```
-   python datasets/seq_extract.py
+   python utils/seq_extract.py
    ```
    This will create protein_seq.tsv with the extracted sequences from UniProt IDs.
 
