@@ -38,11 +38,28 @@ To set up the project environment, follow these steps:
    ```
    This will create protein_seq.tsv with the extracted sequences from UniProt IDs.
 
+## Folder Structure
+├── datasets/
+│   ├── basic_statictical/
+│   ├── phase1/
+│   │   ├── train/
+│   │   └── test/
+│   ├── phase2/
+│   │   ├── train/
+│   │   └── test/
+│   ├── **pre_processing.ipynb**
+│   ├── **embedding.ipynb**
+│   ├── raw_data.tsv
+│   └── protein_dataset.tsv
+├── utils/
+│   ├── __init__.py
+│   ├── download_uniprot.py
+│   └── seq_extract.py
+├── requirements.txt
+├── README.md
+└── .gitignore
+
 ## Data Collection
-Data for this project is collected from the ProThermDB database, which specializes in thermodynamic properties of proteins. The database allows selection of specific features through its browse -> search functionality.
-
-For this analysis, we selected UniProt protein information to obtain amino acid sequences. We also included PDB, ASA, and Secondary Structure features as they appear relevant to our problem. All thermodynamic parameters were initially included, though we expect to reduce these features later in the process.
-
-The Bio library was used to retrieve amino acid sequences from UniProt IDs.
-
-Source: https://web.iitm.ac.in/bioinfo2/prothermdb/index.html
+The dataset for this project is obtained from the ProThermDB database. This database allows users to select features for display and perform searches.
+🔗 [Database](https://web.iitm.ac.in/bioinfo2/prothermdb/search.html) Link (Data can be explored via the "Browse -> Search" section.)
+The downloaded data from this database is stored in datasets/raw_data.tsv. This dataset does not include protein sequences, but the sequences can be retrieved using UniProt_ID.
