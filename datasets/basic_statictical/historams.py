@@ -1,10 +1,10 @@
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 
 def histogram(file_path):
+    """Plot histograms for specified columns in the protein dataset."""
     df = pd.read_csv(file_path, sep="\t")
 
     def plot_distribution(df, column_name, ax):

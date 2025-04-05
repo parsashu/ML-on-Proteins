@@ -51,6 +51,7 @@ def pearson_correlation_heatmap(file_path):
 
 
 def spearman_correlation_heatmap(file_path):
+    """Plot Spearman correlation heatmap for specified columns in the protein dataset."""
     df = pd.read_csv(file_path, sep="\t")
     columns_to_plot = [
         "ASA",
