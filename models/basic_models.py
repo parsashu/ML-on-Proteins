@@ -8,7 +8,7 @@ from sklearn.svm import SVR
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.neural_network import MLPRegressor
-# Load normalized datasets
+
 # Model 1: Tm prediction
 X1_train = pd.read_csv("datasets/phase1/train/X1_train.csv")
 X1_test = pd.read_csv("datasets/phase1/test/X1_test.csv")
@@ -67,7 +67,6 @@ models = {
     # ],
 }
 
-# Training data pairs
 train_data = [
     (X1_train, y1_train.values.ravel()),
     (X2_train, y2_train.values.ravel()),
@@ -83,7 +82,6 @@ test_data = [
 ]
 
 
-# Calculate metrics
 def print_metrics(y_true, y_pred, model_name):
     mse = mean_squared_error(y_true, y_pred)
     rmse = np.sqrt(mse)
@@ -94,7 +92,6 @@ def print_metrics(y_true, y_pred, model_name):
     print(f"R2 Score: {r2:.4f}")
 
 
-# Train models with progress bar
 for model_type, model_list in models.items():
     print(f"\nTraining {model_type} models:")
     for (target, model), (X_train, y_train), (X_test, y_test) in tqdm(
@@ -108,7 +105,6 @@ for model_type, model_list in models.items():
         print_metrics(y_test, y_pred, f"{model_type} - {target}")
 
 
-# # Feature importance analysis
 # def print_feature_importance(model, feature_names, model_name):
 #     importances = model.feature_importances_
 #     indices = np.argsort(importances)[::-1]
@@ -118,14 +114,12 @@ for model_type, model_list in models.items():
 #         print(f"{feature_names[indices[f]]}: {importances[indices[f]]:.4f}")
 
 
-# # Print feature importance for each model
 # feature_names = X1_train.columns.tolist()
 # print_feature_importance(dt1, feature_names, "Model 1 (Tm)")
 # print_feature_importance(dt2, feature_names, "Model 2 (m)")
 # print_feature_importance(dt3, feature_names, "Model 3 (Cm)")
 # print_feature_importance(dt4, feature_names, "Model 4 (deltaG)")
 
-# # Print feature importance for Random Forest models
 # print("\n=== Random Forest Feature Importance ===")
 # print_feature_importance(rf1, feature_names, "Random Forest Model 1 (Tm)")
 # print_feature_importance(rf2, feature_names, "Random Forest Model 2 (m)")
