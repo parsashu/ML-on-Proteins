@@ -12,7 +12,7 @@ To set up the project environment, follow these steps:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/protein-thermodynamics.git
+   git clone https://github.com/parsashu/ML-in-physics.git
    cd protein-thermodynamics
    ```
 
@@ -48,12 +48,11 @@ To set up the project environment, follow these steps:
 │   ├── phase2/
 │   │   ├── train/
 │   │   └── test/
-│   ├── **pre_processing.ipynb**
-│   ├── **embedding.ipynb**
+│   ├── pre_processing.ipynb
+│   ├── embedding.ipynb
 │   ├── raw_data.tsv
 │   └── protein_dataset.tsv
 ├── utils/
-│   ├── __init__.py
 │   ├── download_uniprot.py
 │   └── seq_extract.py
 ├── requirements.txt
