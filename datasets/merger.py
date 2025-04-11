@@ -1,7 +1,54 @@
 import pandas as pd
 
-protein_seq_df = pd.read_csv("datasets/raw/protein_seq.tsv", sep="\t")
-fireprot_df = pd.read_csv("datasets/raw/fireprotdb_results.csv")
+protein_seq_df = pd.read_csv(
+    "datasets/raw/protein_seq.tsv",
+    sep="\t",
+    dtype={
+        "UniProt_ID": str,
+        "PDB_wild": str,
+        "SEC_STR": str,
+        "ASA": str,
+        "pH": float,
+        "T_(C)": str,
+        "Tm_(C)": str,
+        "∆Tm_(C)": str,
+        "∆H_(kcal/mol)": str,
+        "∆Cp_(kcal/mol)": str,
+        "∆HvH_(kcal/mol)": str,
+        "∆G_(kcal/mol)": str,
+        "∆∆G_(kcal/mol)": str,
+        "m_(kcal/mol/M)": str,
+        "Cm_(M)": str,
+        "∆G_H2O_(kcal/mol)": str,
+        "∆∆G_H2O_(kcal/mol)": str,
+        "STATE": str,
+        "REVERSIBILITY": str,
+        "Protein_Sequence": str,
+    },
+    low_memory=False,
+)
+fireprot_df = pd.read_csv(
+    "datasets/raw/fireprotdb_results.csv",
+    dtype={
+        "ddG": float,
+        "dTm": float,
+        "tm": float,
+        "asa": float,
+        "b_factor": float,
+        "position": int,
+        "conservation": float,
+        "is_essential": bool,
+        "is_back_to_consensus": bool,
+        "is_in_catalytic_pocket": bool,
+        "is_in_tunnel_bottleneck": bool,
+        "method": str,
+        "method_details": str,
+        "technique": str,
+        "technique_details": str,
+        "notes": str,
+    },
+    low_memory=False,
+)
 kaggle_df = pd.read_csv("datasets/raw/kaggle_data.csv")
 
 
@@ -10,11 +57,9 @@ def translate_sec_str(code):
         return "Helix"
     elif code == "E" or code == "B":
         return "Sheet"
-    elif code == "T":
+    elif code == "T" or code == "S":
         return "Turn"
-    elif code == "S":
-        return "Turn or Coil"
-    elif code == "L" or code == " ":
+    elif code == "L":
         return "Coil"
     else:
         return "-"
