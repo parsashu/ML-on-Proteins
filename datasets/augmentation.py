@@ -1,8 +1,6 @@
 import random
 from Bio.Align import substitution_matrices
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
+
 
 # Hydrophobicity scale (Kyte-Doolittle)
 hydrophobicity = {

@@ -12,8 +12,8 @@ from Bio import SeqIO
 from io import StringIO
 import pandas as pd
 
-raw_file = "datasets/raw_data.tsv"
-dataset = "datasets/protein_seq.tsv"
+raw_file = "datasets/raw/protherm.tsv"
+dataset = "datasets/raw/protein_seq.tsv"
 
 def get_sequence_from_uniprot(uniprot_id, max_retries=5):
     """Function to retrieve protein sequences from UniProt API"""
