@@ -10,7 +10,7 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.neural_network import MLPRegressor
 
 # Model 1: Tm prediction
-X1_train = pd.read_csv("datasets/phase1/train/X1_train.csv")
+X1_train = pd.read_csv("datasets/phase1/oldtrain/X1_train.csv")
 X1_test = pd.read_csv("datasets/phase1/test/X1_test.csv")
 y1_train = pd.read_csv("datasets/phase1/train/y1_train.csv")
 y1_test = pd.read_csv("datasets/phase1/test/y1_test.csv")
