@@ -12,7 +12,7 @@ statsmodels>=0.13.0
 scikit-learn>=1.0.0
 
 # Deep Learning and AI
-torch>=2.0.0
+# torch==2.0.0+cu118
 transformers>=4.30.0
 
 # Bioinformatics
