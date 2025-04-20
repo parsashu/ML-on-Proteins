@@ -10,7 +10,7 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.neural_network import MLPRegressor
 
 # Model 1: Tm prediction
-X1_train = pd.read_csv("datasets/phase1/oldtrain/X1_train.csv")
+X1_train = pd.read_csv("datasets/phase1/train/X1_train.csv")
 X1_test = pd.read_csv("datasets/phase1/test/X1_test.csv")
 y1_train = pd.read_csv("datasets/phase1/train/y1_train.csv")
 y1_test = pd.read_csv("datasets/phase1/test/y1_test.csv")
@@ -33,20 +33,19 @@ X4_test = pd.read_csv("datasets/phase1/test/X4_test.csv")
 y4_train = pd.read_csv("datasets/phase1/train/y4_train.csv")
 y4_test = pd.read_csv("datasets/phase1/test/y4_test.csv")
 
-# Initialize models
 models = {
-    # "Decision Tree": [
-    #     ("Tm", DecisionTreeRegressor(random_state=42)),
-    #     ("m", DecisionTreeRegressor(random_state=42)),
-    #     ("Cm", DecisionTreeRegressor(random_state=42)),
-    #     ("deltaG", DecisionTreeRegressor(random_state=42)),
-    # ],
-    "Random Forest": [
-        ("Tm", RandomForestRegressor(n_estimators=100, random_state=42)),
-        ("m", RandomForestRegressor(n_estimators=100, random_state=42)),
-        ("Cm", RandomForestRegressor(n_estimators=100, random_state=42)),
-        ("deltaG", RandomForestRegressor(n_estimators=100, random_state=42)),
+    "Decision Tree": [
+        ("Tm", DecisionTreeRegressor(random_state=42)),
+        ("m", DecisionTreeRegressor(random_state=42)),
+        ("Cm", DecisionTreeRegressor(random_state=42)),
+        ("deltaG", DecisionTreeRegressor(random_state=42)),
     ],
+    # "Random Forest": [
+    #     ("Tm", RandomForestRegressor(n_estimators=10, random_state=42)),
+    #     ("m", RandomForestRegressor(n_estimators=100, random_state=42)),
+    #     ("Cm", RandomForestRegressor(n_estimators=100, random_state=42)),
+    #     ("deltaG", RandomForestRegressor(n_estimators=100, random_state=42)),
+    # ],
     # "SVR": [
     #     ("Tm", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
     #     ("m", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
