@@ -5,6 +5,7 @@ datasets/phase2/train/y_train.csv.gz
 datasets/phase2/test/y_test.csv.gz
 datasets/tempCodeRunnerFile.py
 datasets/basic_statictical/tempCodeRunnerFile.py
+datasets/phase2/
 models/tempCodeRunnerFile.py
 datasets/raw/
 .venv/

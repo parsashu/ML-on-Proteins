@@ -1,13 +1,22 @@
 import pandas as pd
 import numpy as np
+import torch
+import torch.nn as nn
+from torch.utils.data import Dataset, DataLoader
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 from tqdm import tqdm
 from sklearn.svm import SVR
-from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.neural_network import MLPRegressor
+from sklearnex import patch_sklearn
+
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Using device: {device}")
+
+# Enable GPU acceleration for scikit-learn
+patch_sklearn()
+
 
 # Model 1: Tm prediction
 X1_train = pd.read_csv("datasets/phase1/train/X1_train.csv")
@@ -34,23 +43,17 @@ y4_train = pd.read_csv("datasets/phase1/train/y4_train.csv")
 y4_test = pd.read_csv("datasets/phase1/test/y4_test.csv")
 
 models = {
-    "Decision Tree": [
-        ("Tm", DecisionTreeRegressor(random_state=42)),
-        ("m", DecisionTreeRegressor(random_state=42)),
-        ("Cm", DecisionTreeRegressor(random_state=42)),
-        ("deltaG", DecisionTreeRegressor(random_state=42)),
-    ],
+    # "Decision Tree": [
+    #     ("Tm", DecisionTreeRegressor(random_state=42)),
+    #     ("m", DecisionTreeRegressor(random_state=42)),
+    #     ("Cm", DecisionTreeRegressor(random_state=42)),
+    #     ("deltaG", DecisionTreeRegressor(random_state=42)),
+    # ],
     # "Random Forest": [
-    #     ("Tm", RandomForestRegressor(n_estimators=10, random_state=42)),
+    #     ("Tm", RandomForestRegressor(n_estimators=100, random_state=42)),
     #     ("m", RandomForestRegressor(n_estimators=100, random_state=42)),
     #     ("Cm", RandomForestRegressor(n_estimators=100, random_state=42)),
     #     ("deltaG", RandomForestRegressor(n_estimators=100, random_state=42)),
-    # ],
-    # "SVR": [
-    #     ("Tm", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
-    #     ("m", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
-    #     ("Cm", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
-    #     ("deltaG", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
     # ],
     # "Gradient Boosting": [
     #     ("Tm", GradientBoostingRegressor(n_estimators=100, random_state=42)),
@@ -58,12 +61,18 @@ models = {
     #     ("Cm", GradientBoostingRegressor(n_estimators=100, random_state=42)),
     #     ("deltaG", GradientBoostingRegressor(n_estimators=100, random_state=42)),
     # ],
-    # "Neural Network": [
-    #     ("Tm", MLPRegressor(hidden_layer_sizes=(200, 100), max_iter=1000)),
-    #     ("m", MLPRegressor(hidden_layer_sizes=(200, 100), max_iter=1000)),
-    #     ("Cm", MLPRegressor(hidden_layer_sizes=(200, 100), max_iter=1000)),
-    #     ("deltaG", MLPRegressor(hidden_layer_sizes=(200, 100), max_iter=1000)),
-    # ],
+    "SVR": [
+        ("Tm", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
+        ("m", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
+        ("Cm", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
+        ("deltaG", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
+    ],
+    "Neural Network": [
+        ("Tm", nn.Linear(X1_train.shape[1], 1)),
+        ("m", nn.Linear(X2_train.shape[1], 1)),
+        ("Cm", nn.Linear(X3_train.shape[1], 1)),
+        ("deltaG", nn.Linear(X4_train.shape[1], 1)),
+    ],
 }
 
 train_data = [
@@ -91,6 +100,7 @@ def print_metrics(y_true, y_pred, model_name):
     print(f"R2 Score: {r2:.4f}")
 
 
+# Train and evaluate models
 for model_type, model_list in models.items():
     print(f"\nTraining {model_type} models:")
     for (target, model), (X_train, y_train), (X_test, y_test) in tqdm(
@@ -102,7 +112,6 @@ for model_type, model_list in models.items():
         y_pred = model.predict(X_test)
         print(f"\n{model_type} - {target} Metrics:")
         print_metrics(y_test, y_pred, f"{model_type} - {target}")
-
 
 # def print_feature_importance(model, feature_names, model_name):
 #     importances = model.feature_importances_

@@ -9,10 +9,11 @@ seaborn>=0.11.0
 # Scientific and Statistical
 scipy>=1.7.0
 statsmodels>=0.13.0
-scikit-learn>=1.0.0
+scikit-learn>=0.24.0
+scikit-learn-intelex>=0.1.0
 
 # Deep Learning and AI
-# torch==2.0.0+cu118
+torch>=1.9.0
 transformers>=4.30.0
 
 # Bioinformatics
@@ -23,7 +24,11 @@ requests>=2.25.0
 urllib3>=1.26.0
 
 # Utilities
-tqdm>=4.65.0
+tqdm>=4.62.0
 
 # Additional packages
 regex>=2023.0.0
+
+# Optional: RAPIDS (requires NVIDIA GPU)
+# cudf-cu11>=21.10.0
+# cuml-cu11>=21.10.0
