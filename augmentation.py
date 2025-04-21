@@ -1,160 +1,108 @@
-import torch
-import pandas as pd
-from tqdm import tqdm
-import os
-from transformers import AutoTokenizer, AutoModel
-import numpy as np
+import random
+from Bio.Align import substitution_matrices
 
-dataset = "datasets/protein_dataset.tsv"
-embeddings_file = "datasets/sequence_embeddings.csv"
-sequences_dataset = "datasets/raw/sequences_dataset.csv"
+# Hydrophobicity scale (Kyte-Doolittle)
+hydrophobicity = {
+    "A": 1.8,
+    "C": 2.5,
+    "D": -3.5,
+    "E": -3.5,
+    "F": 2.8,
+    "G": 0.4,
+    "H": -3.2,
+    "I": 4.5,
+    "K": -3.9,
+    "L": 3.8,
+    "M": 1.9,
+    "N": -3.5,
+    "P": -1.6,
+    "Q": -3.5,
+    "R": -4.5,
+    "S": -0.8,
+    "T": -0.7,
+    "V": 4.2,
+    "W": -0.9,
+    "Y": -1.3,
+}
 
-# Load and save all unique sequences
-df = pd.read_csv(dataset, sep="\t", low_memory=False)
-print(f"Number of rows before removing duplicates: {len(df)}")
-
-df = df[["UniProt_ID", "Protein_Sequence"]]
-df = df.drop_duplicates(subset=["Protein_Sequence"], keep="first")
-print(f"Number of rows after removing duplicates: {len(df)}")
-
-df.to_csv(sequences_dataset, index=False)
-print(f"Unique protein data saved to {sequences_dataset}")
-
-
-# Generate embeddings only for sequences not already in embeddings file
-print("Loading protein language model and tokenizer...")
-model_name = "facebook/esm2_t6_8M_UR50D"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModel.from_pretrained(model_name)
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = model.to(device)
-print(f"Using device: {device}")
-
-# Load existing embeddings if file exists
-if os.path.exists(embeddings_file):
-    existing_df = pd.read_csv(embeddings_file)
-    existing_sequences = set(existing_df["Protein_Sequence"].tolist())
-    print(f"Found {len(existing_sequences)} existing sequences with embeddings")
-else:
-    existing_df = pd.DataFrame(columns=["UniProt_ID", "Protein_Sequence", "Embedding"])
-    existing_sequences = set()
-    print("No existing embeddings found. Will create new file.")
-
-# Filter to only process sequences not already in embeddings file
-df = df[~df["Protein_Sequence"].isin(existing_sequences)]
-print(f"Number of new sequences to process: {len(df)}")
-
-# Filter out sequences longer than max_length
-max_length = 15000
-original_count = len(df)
-df = df[df["Protein_Sequence"].str.len() <= max_length]
-filtered_count = original_count - len(df)
-print(f"Filtered out {filtered_count} sequences longer than {max_length} characters")
-print(f"Remaining sequences to process: {len(df)}")
-
-checkpoint_interval = 100
-checkpoint_file = "embedding_checkpoint.csv"
+blosum62 = substitution_matrices.load("BLOSUM62")
+amino_acids = list(hydrophobicity.keys())
 
 
-def load_checkpoint():
-    if os.path.exists(checkpoint_file):
-        print(f"Loading checkpoint from {checkpoint_file}")
-        checkpoint_df = pd.read_csv(checkpoint_file)
-        embeddings = []
-        for emb_str in checkpoint_df["Embedding"]:
-            emb_array = np.fromstring(emb_str.strip("[]"), sep=" ")
-            embeddings.append(emb_array)
+def substitute_with_constraints(
+    sequence, num_substitutions=3, min_score=0, max_hydro_diff=1.0
+):
+    seq_list = list(sequence)
+    positions = random.sample(range(len(seq_list)), num_substitutions)
 
-        return {
-            "embeddings": embeddings,
-            "uniprot_ids": checkpoint_df["UniProt_ID"].tolist(),
-            "sequences": checkpoint_df["Protein_Sequence"].tolist(),
-            "embedding_strings": checkpoint_df["Embedding"].tolist(),
-            "current_idx": len(checkpoint_df) - 1,
-        }
-    return None
+    for pos in positions:
+        old_aa = seq_list[pos]
+        old_hydro = hydrophobicity[old_aa]
+        # Filter by BLOSUM62 score and hydrophobicity
+        candidates = [
+            aa
+            for aa in amino_acids
+            if blosum62[old_aa][aa] >= min_score
+            and abs(hydrophobicity[aa] - old_hydro) <= max_hydro_diff
+            and aa != old_aa
+        ]
+        if candidates:
+            new_aa = random.choice(candidates)
+            seq_list[pos] = new_aa
 
-
-def save_checkpoint(embeddings, uniprot_ids, sequences, embedding_strings, current_idx):
-    checkpoint_df = pd.DataFrame(
-        {
-            "UniProt_ID": uniprot_ids,
-            "Protein_Sequence": sequences,
-            "Embedding": embedding_strings,
-        }
-    )
-    checkpoint_df.to_csv(checkpoint_file, index=False)
+    return "".join(seq_list)
 
 
-def generate_embedding(sequence, normalize=True):
-    if not isinstance(sequence, str) or len(sequence) == 0:
-        return None
+def augment_sequence(
+    sequence,
+    num_substitutions=[1, 2, 3],
+    num_mutations=[5, 4, 3],
+    min_score=0,
+    max_hydro_diff=1.0,
+    random_seed=42,
+):
+    """Augment a sequence by substituting amino acids with constraints."""
+    random.seed(random_seed)
+    new_seq_list = []
 
-    inputs = tokenizer(sequence, return_tensors="pt").to(device)
+    for i in range(len(num_substitutions)):
+        current_substitution = num_substitutions[i]
+        current_mutation = num_mutations[i]
 
-    with torch.no_grad():
-        outputs = model(**inputs)
+        for _ in range(current_mutation):
+            while True:
+                new_seq = substitute_with_constraints(
+                    sequence,
+                    num_substitutions=current_substitution,
+                    min_score=min_score,
+                    max_hydro_diff=max_hydro_diff,
+                )
+                if new_seq not in new_seq_list and new_seq != sequence:
+                    new_seq_list.append(new_seq)
+                    break
 
-    embedding = outputs.last_hidden_state[:, 0, :].cpu().numpy()[0]
-
-    # L2 normalization (unit vector)
-    if normalize:
-        norm = np.linalg.norm(embedding)
-        if norm > 0:
-            embedding = embedding / norm
-
-    return embedding
+    return new_seq_list
 
 
-print("Generating embeddings for new proteins...")
-embeddings = []
-uniprot_ids = []
-sequences = []
-embedding_strings = []
-start_idx = 0
-
-checkpoint = load_checkpoint()
-if checkpoint:
-    embeddings = checkpoint["embeddings"]
-    uniprot_ids = checkpoint["uniprot_ids"]
-    sequences = checkpoint["sequences"]
-    embedding_strings = checkpoint["embedding_strings"]
-    start_idx = checkpoint["current_idx"] + 1
-    print(f"Resuming from index {start_idx}")
-
-for idx, row in tqdm(df.iterrows(), total=len(df)):
-    uniprot_id = row["UniProt_ID"]
-    sequence = row["Protein_Sequence"]
-
-    embedding = generate_embedding(sequence)
-
-    if embedding is not None:
-        embeddings.append(embedding)
-        uniprot_ids.append(uniprot_id)
-        sequences.append(sequence)
-        embedding_str = str(embedding)
-        embedding_strings.append(embedding_str)
-
-    if (idx + 1) % checkpoint_interval == 0:
-        save_checkpoint(embeddings, uniprot_ids, sequences, embedding_strings, idx)
-
-results_df = pd.DataFrame(
-    {
-        "UniProt_ID": uniprot_ids,
-        "Protein_Sequence": sequences,
-        "Embedding": embedding_strings,
-    }
+original_seq = "MAKVRTKDVMEQFNLELISGEEGINRPITMSDLSRPGIEIAGYFTYYPRERVQLLGK"
+new_seqs = augment_sequence(
+    original_seq,
+    num_substitutions=[1, 2, 3],
+    num_mutations=[5, 4, 3],
+    min_score=0,
+    max_hydro_diff=1,
 )
 
-# Combine new embeddings with existing ones
-combined_df = pd.concat([existing_df, results_df], ignore_index=True)
-combined_df.to_csv(embeddings_file, index=False)
-
-if os.path.exists(checkpoint_file):
-    os.remove(checkpoint_file)
-
-print(f"Completed! Generated embeddings for {len(embeddings)} new proteins")
-print(f"Total proteins with embeddings: {len(combined_df)}")
-print(f"Embedding dimension: {len(embeddings[0]) if embeddings else 0}")
-print(f"Results saved to {embeddings_file}")
+# print("\nSequence Augmentation Results:")
+# print("-" * 50)
+# print(f"Original Sequence: {original_seq}")
+# print("-" * 50)
+# print("Generated Variants:")
+# for i, seq in enumerate(new_seqs, 1):
+#     # Find positions where the sequence differs
+#     diffs = [j for j, (a, b) in enumerate(zip(original_seq, seq)) if a != b]
+#     print(f"\nVariant {i}:")
+#     print(f"Sequence: {seq}")
+#     print(f"Changes: {len(diffs)} substitutions at positions {diffs}")
+# print("-" * 50)
+# print(f"Total variants generated: {len(new_seqs)}")
