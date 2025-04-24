@@ -33,17 +33,34 @@ augmented_sequences2 = augment_sequence(
     random_seed=42,
 )
 
-all_sequences = [sequence] + augmented_sequences1 + augmented_sequences2
+# Get embeddings for original sequence
+original_inputs = tokenizer(sequence, return_tensors="pt").to(device)
+with torch.no_grad():
+    original_outputs = model(**original_inputs)
+original_embedding = original_outputs.last_hidden_state.mean(dim=1).cpu()
 
-all_embeddings = []
-for seq in all_sequences:
+# Get embeddings for first set of augmented sequences
+embeddings1 = []
+for seq in augmented_sequences1:
     inputs = tokenizer(seq, return_tensors="pt").to(device)
     with torch.no_grad():
         outputs = model(**inputs)
     embedding = outputs.last_hidden_state.mean(dim=1).cpu()
-    all_embeddings.append(embedding)
+    embeddings1.append(embedding)
 
-combined_embeddings = torch.cat(all_embeddings, dim=0).numpy()
+# Get embeddings for second set of augmented sequences
+embeddings2 = []
+for seq in augmented_sequences2:
+    inputs = tokenizer(seq, return_tensors="pt").to(device)
+    with torch.no_grad():
+        outputs = model(**inputs)
+    embedding = outputs.last_hidden_state.mean(dim=1).cpu()
+    embeddings2.append(embedding)
+
+# Combine embeddings for PCA
+combined_embeddings = torch.cat(
+    [original_embedding] + embeddings1 + embeddings2, dim=0
+).numpy()
 
 pca = PCA(n_components=2)
 pca_result = pca.fit_transform(combined_embeddings)
@@ -87,3 +104,20 @@ plt.ylabel("Principal Component 2")
 plt.legend()
 plt.grid(True)
 plt.show()
+
+
+# Calculate L2 norm differences between original and augmented embeddings
+def difference_from_original(embeddings, original_embedding):
+    differences = []
+    for embedding in embeddings:
+        diff = embedding.numpy() - original_embedding.numpy()
+        diff = np.linalg.norm(diff, axis=1)
+        differences.append(diff)
+    return sum(differences)[0] / len(differences)
+
+
+loss1 = difference_from_original(embeddings1, original_embedding)
+loss2 = difference_from_original(embeddings2, original_embedding)
+
+print(loss1)
+print(loss2)

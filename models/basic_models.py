@@ -49,30 +49,30 @@ models = {
     #     ("Cm", DecisionTreeRegressor(random_state=42)),
     #     ("deltaG", DecisionTreeRegressor(random_state=42)),
     # ],
-    # "Random Forest": [
-    #     ("Tm", RandomForestRegressor(n_estimators=100, random_state=42)),
-    #     ("m", RandomForestRegressor(n_estimators=100, random_state=42)),
-    #     ("Cm", RandomForestRegressor(n_estimators=100, random_state=42)),
-    #     ("deltaG", RandomForestRegressor(n_estimators=100, random_state=42)),
-    # ],
+    "Random Forest": [
+        ("Tm", RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1, warm_start=True)),
+        ("m", RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1, warm_start=True)),
+        ("Cm", RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1, warm_start=True)),
+        ("deltaG", RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1, warm_start=True)),
+    ],
     # "Gradient Boosting": [
     #     ("Tm", GradientBoostingRegressor(n_estimators=100, random_state=42)),
     #     ("m", GradientBoostingRegressor(n_estimators=100, random_state=42)),
     #     ("Cm", GradientBoostingRegressor(n_estimators=100, random_state=42)),
     #     ("deltaG", GradientBoostingRegressor(n_estimators=100, random_state=42)),
     # ],
-    "SVR": [
-        ("Tm", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
-        ("m", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
-        ("Cm", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
-        ("deltaG", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
-    ],
-    "Neural Network": [
-        ("Tm", nn.Linear(X1_train.shape[1], 1)),
-        ("m", nn.Linear(X2_train.shape[1], 1)),
-        ("Cm", nn.Linear(X3_train.shape[1], 1)),
-        ("deltaG", nn.Linear(X4_train.shape[1], 1)),
-    ],
+    # "SVR": [
+    #     ("Tm", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
+    #     ("m", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
+    #     ("Cm", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
+    #     ("deltaG", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
+    # ],
+    # "Neural Network": [
+    #     ("Tm", nn.Linear(X1_train.shape[1], 1)),
+    #     ("m", nn.Linear(X2_train.shape[1], 1)),
+    #     ("Cm", nn.Linear(X3_train.shape[1], 1)),
+    #     ("deltaG", nn.Linear(X4_train.shape[1], 1)),
+    # ],
 }
 
 train_data = [
@@ -108,10 +108,38 @@ for model_type, model_list in models.items():
         total=len(model_list),
         desc=f"{model_type}",
     ):
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        print(f"\n{model_type} - {target} Metrics:")
-        print_metrics(y_test, y_pred, f"{model_type} - {target}")
+        # Initialize lists to store metrics for each epoch
+        mse_history = []
+        rmse_history = []
+        r2_history = []
+        
+        # Training loop with 20 epochs
+        for epoch in tqdm(range(20), desc=f"Training {target}", leave=False):
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+            
+            # Calculate metrics
+            mse = mean_squared_error(y_test, y_pred)
+            rmse = np.sqrt(mse)
+            r2 = r2_score(y_test, y_pred)
+            
+            # Store metrics
+            mse_history.append(mse)
+            rmse_history.append(rmse)
+            r2_history.append(r2)
+            
+            # Print progress every 5 epochs
+            if (epoch + 1) % 5 == 0:
+                print(f"\nEpoch {epoch + 1}/20 - {model_type} - {target}")
+                print(f"MSE: {mse:.4f} (Best: {min(mse_history):.4f})")
+                print(f"RMSE: {rmse:.4f} (Best: {min(rmse_history):.4f})")
+                print(f"R2 Score: {r2:.4f} (Best: {max(r2_history):.4f})")
+        
+        # Print final metrics
+        print(f"\nFinal Metrics for {model_type} - {target}:")
+        print(f"Best MSE: {min(mse_history):.4f}")
+        print(f"Best RMSE: {min(rmse_history):.4f}")
+        print(f"Best R2 Score: {max(r2_history):.4f}")
 
 # def print_feature_importance(model, feature_names, model_name):
 #     importances = model.feature_importances_
