@@ -1,38 +1,36 @@
 import pandas as pd
+import numpy as np
 
 
-dataset_path = "datasets/protein_dataset.tsv"
-train_path = "datasets/train_dataset.tsv"
-test_path = "datasets/test_dataset.tsv"
+dataset = "datasets/protein_dataset.tsv"
+train_path = "datasets/train_dataset2.tsv"
+test_path = "datasets/test_dataset2.tsv"
 
-df = pd.read_csv(dataset_path, sep="\t", low_memory=False)
+# Read the dataset
+df = pd.read_csv(dataset, sep="\t", low_memory=False)
 
-test_df = pd.DataFrame(columns=df.columns).astype(df.dtypes)
-remaining_df = df.copy()
+# Calculate target test size
+target_test_size = int(0.2 * len(df["Protein_Sequence"].unique()))
 
-# Target test size (14% of total dataset)
-target_test_size = int(0.14 * len(df))
+# Group by protein sequence and filter out groups with missing values
+valid_groups = df.groupby("Protein_Sequence").filter(
+    lambda x: not x["Tm_(C)"].isna().any() and not x["pH"].isna().any()
+)
 
-while len(test_df) < target_test_size and len(remaining_df) > 0:
-    if len(test_df) % 3000 == 0 and len(test_df) != 0:
-        print(
-            f"Progress: {len(test_df)}/{target_test_size} test samples selected ({len(test_df)/target_test_size*100:.1f}%)"
-        )
-    # Get group with same sequence
-    random_seq = remaining_df["Protein_Sequence"].sample(1, random_state=42).iloc[0]
-    sequence_samples = remaining_df[remaining_df["Protein_Sequence"] == random_seq]
+# Get unique sequences
+unique_sequences = valid_groups["Protein_Sequence"].unique()
 
-    # Check if all samples have Tm, pH values
-    if (
-        not sequence_samples["Tm_(C)"].isna().any()
-        and not sequence_samples["pH"].isna().any()
-    ):
-        test_df = pd.concat([test_df, sequence_samples], ignore_index=True)
-        # Remove these samples from remaining dataset preventing data leakage
-        remaining_df = remaining_df[remaining_df["Protein_Sequence"] != random_seq]
+# Calculate how many sequences we need to reach target test size
+np.random.seed(0)
+selected_sequences = np.random.choice(
+    unique_sequences, size=target_test_size, replace=False
+)
 
-train_df = remaining_df
+# Split the data
+test_df = valid_groups[valid_groups["Protein_Sequence"].isin(selected_sequences)]
+train_df = df[~df["Protein_Sequence"].isin(selected_sequences)]
 
+# Save the datasets
 train_df.to_csv(train_path, sep="\t", index=False)
 test_df.to_csv(test_path, sep="\t", index=False)
 
