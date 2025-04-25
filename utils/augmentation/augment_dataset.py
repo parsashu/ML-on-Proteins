@@ -8,6 +8,9 @@ sys.path.append(project_root)
 from utils.augmentation.augment_functions import augment_sequence
 
 
+min_score = 2
+max_hydro_diff = 1
+
 def augment_dataset(
     input_file, output_file, num_substitutions=[1, 2, 3], num_mutations=[5, 4, 3]
 ):
@@ -30,8 +33,8 @@ def augment_dataset(
             original_seq,
             num_substitutions=num_substitutions,
             num_mutations=num_mutations,
-            min_score=2,
-            max_hydro_diff=0.5,
+            min_score=min_score,
+            max_hydro_diff=max_hydro_diff,
             retries=20,
             random_seed=42,
         )
