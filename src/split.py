@@ -6,10 +6,8 @@ dataset = "datasets/protein_dataset.tsv"
 train_path = "datasets/train_dataset2.tsv"
 test_path = "datasets/test_dataset2.tsv"
 
-# Read the dataset
 df = pd.read_csv(dataset, sep="\t", low_memory=False)
 
-# Calculate target test size
 target_test_size = int(0.2 * len(df["Protein_Sequence"].unique()))
 
 # Group by protein sequence and filter out groups with missing values
@@ -17,7 +15,6 @@ valid_groups = df.groupby("Protein_Sequence").filter(
     lambda x: not x["Tm_(C)"].isna().any() and not x["pH"].isna().any()
 )
 
-# Get unique sequences
 unique_sequences = valid_groups["Protein_Sequence"].unique()
 
 # Calculate how many sequences we need to reach target test size
@@ -26,11 +23,10 @@ selected_sequences = np.random.choice(
     unique_sequences, size=target_test_size, replace=False
 )
 
-# Split the data
+# Create Train dataset without selected groups to prevent data leakage
 test_df = valid_groups[valid_groups["Protein_Sequence"].isin(selected_sequences)]
 train_df = df[~df["Protein_Sequence"].isin(selected_sequences)]
 
-# Save the datasets
 train_df.to_csv(train_path, sep="\t", index=False)
 test_df.to_csv(test_path, sep="\t", index=False)
 
