@@ -5,7 +5,7 @@ import pandas as pd
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
 
-from utils.augmentation.augment_functions import augment_sequence
+from augment_functions import augment_sequence
 
 
 min_score = 2
@@ -56,13 +56,12 @@ def augment_dataset(
     print(f"Augmented dataset size: {len(augmented_df)}")
 
 
-if __name__ == "__main__":
-    input_file = "datasets/protein_dataset.tsv"
-    output_file = "datasets/protein_dataset_augmented.tsv"
+train_file = "datasets/train_dataset.tsv"
+train_augmented = "datasets/train_dataset_augmented.tsv"
 
-    augment_dataset(
-        input_file=input_file,
-        output_file=output_file,
-        num_substitutions=[1, 2, 3],
-        num_mutations=[15, 10, 5],
-    )
+augment_dataset(
+    input_file=train_file,
+    output_file=train_augmented,
+    num_substitutions=[1, 2, 3],
+    num_mutations=[15, 10, 5],
+)
