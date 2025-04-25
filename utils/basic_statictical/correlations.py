@@ -29,7 +29,7 @@ def pearson_correlation_heatmap(file_path):
             if valid_samples < 100:
                 corr_matrix.iloc[i, j] = np.nan
 
-    plt.figure(figsize=(6, 6))
+    plt.figure(figsize=(8, 8))
     cmap = sns.diverging_palette(230, 20, as_cmap=True)
 
     sns.heatmap(
@@ -71,7 +71,7 @@ def spearman_correlation_heatmap(file_path):
             sample_sizes.loc[col1, col2] = valid_samples
             if valid_samples < 100:
                 corr_matrix.iloc[i, j] = np.nan
-    plt.figure(figsize=(6, 6))
+    plt.figure(figsize=(8, 8))
     cmap = sns.diverging_palette(230, 20, as_cmap=True)
     sns.heatmap(
         corr_matrix,

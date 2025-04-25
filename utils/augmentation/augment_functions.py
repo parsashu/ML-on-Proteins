@@ -64,11 +64,13 @@ def augment_sequence(
     min_score=0,
     max_hydro_diff=1.0,
     retries=20,
+    print_failures=True,
     random_seed=None,
 ):
     """Augment a sequence by substituting amino acids with constraints."""
     random.seed(random_seed)
     new_seq_list = []
+    failed_count = 0
 
     for i in range(len(num_substitutions)):
         current_substitution = num_substitutions[i]
@@ -87,9 +89,11 @@ def augment_sequence(
                     break
 
                 if j == retries - 1:
-                    print(f"Failed to generate a valid variant after {retries} retries")
+                    failed_count += 1
+                    if print_failures:
+                        print(f"Failed to generate a valid variant after {retries} retries")
 
-    return new_seq_list
+    return new_seq_list, failed_count
 
 
 original_seq = "MAKVRTKDVMEQFNLELISGEEGINRPITMSDLSRPGIEIAGYFTYYPRERVQLLGK"
