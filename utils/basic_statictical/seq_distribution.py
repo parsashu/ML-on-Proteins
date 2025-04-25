@@ -7,7 +7,7 @@ import seaborn as sns
 def sequence_length_distribution(file_path, max_length=15000):
     """Plot the distribution of unique protein sequence lengths."""
     sns.set_style("whitegrid")
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(8, 6))
 
     df = pd.read_csv(file_path, sep="\t", low_memory=False)
     unique_sequences = df["Protein_Sequence"].unique()
