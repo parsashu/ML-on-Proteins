@@ -1,9 +1,8 @@
 import torch
 from transformers import AutoTokenizer, AutoModel
 import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
 import numpy as np
-from augmentation import augment_sequence
+from augment_functions import augment_sequence
 import seaborn as sns
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -69,7 +68,7 @@ for run in range(num_runs):
 mean_loss_matrix = np.mean(all_loss_matrices, axis=0)
 
 # Create single figure
-plt.figure(figsize=(10, 8))
+plt.figure(figsize=(8, 6))
 
 # Plot mean heatmap
 sns.heatmap(
@@ -92,7 +91,7 @@ num_runs = 20
 max_hydro_diffs = np.linspace(0.5, 6, 10)
 all_losses = np.zeros((num_runs, len(max_hydro_diffs)))
 
-# Run experiments with different random seeds
+# Ensemble averaging
 for run in range(num_runs):
     losses = []
     for i, max_hydro_diff in enumerate(max_hydro_diffs):
@@ -116,13 +115,13 @@ for run in range(num_runs):
         losses.append(loss)
 
     all_losses[run] = losses
-
-# Calculate mean and standard deviation across runs
 mean_losses = np.mean(all_losses, axis=0)
 
 plt.figure(figsize=(10, 6))
 plt.plot(max_hydro_diffs, mean_losses, marker="o", linestyle="-", label="Mean Loss")
-plt.title(f"Loss vs Max Hydrophobicity Difference (Min Score = {fixed_min_score})")
+plt.title(
+    f"Loss vs Max Hydrophobicity Difference (Min Score = {fixed_min_score}, Ensemble Size = {num_runs})"
+)
 plt.xlabel("Max Hydrophobicity Difference")
 plt.ylabel("L2 Distance from Original")
 plt.grid(True)

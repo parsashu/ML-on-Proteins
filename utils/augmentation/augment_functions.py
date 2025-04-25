@@ -25,7 +25,7 @@ hydrophobicity = {
     "Y": -1.3,
     "B": -3.5,  # Avg of D (-3.5) and N (-3.5)
     "Z": -3.5,  # Avg of E (-3.5) and Q (-3.5)
-    "X": 0.0,   # Unknown, assumed neutral
+    "X": 0.0,  # Unknown, assumed neutral
 }
 
 
@@ -63,7 +63,7 @@ def augment_sequence(
     num_mutations=[5, 4, 3],
     min_score=0,
     max_hydro_diff=1.0,
-    retries = 3,
+    retries=20,
     random_seed=None,
 ):
     """Augment a sequence by substituting amino acids with constraints."""
@@ -85,7 +85,7 @@ def augment_sequence(
                 if new_seq not in new_seq_list and new_seq != sequence:
                     new_seq_list.append(new_seq)
                     break
-            
+
                 if j == retries - 1:
                     print(f"Failed to generate a valid variant after {retries} retries")
 
@@ -101,17 +101,3 @@ new_seqs = augment_sequence(
     max_hydro_diff=1,
     random_seed=42,
 )
-
-print("\nSequence Augmentation Results:")
-print("-" * 50)
-print(f"Original Sequence: {original_seq}")
-print("-" * 50)
-print("Generated Variants:")
-for i, seq in enumerate(new_seqs, 1):
-    # Find positions where the sequence differs
-    diffs = [j for j, (a, b) in enumerate(zip(original_seq, seq)) if a != b]
-    print(f"\nVariant {i}:")
-    print(f"Sequence: {seq}")
-    print(f"Changes: {len(diffs)} substitutions at positions {diffs}")
-print("-" * 50)
-print(f"Total variants generated: {len(new_seqs)}")

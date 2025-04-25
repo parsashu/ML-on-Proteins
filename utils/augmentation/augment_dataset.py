@@ -5,7 +5,7 @@ import pandas as pd
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
 
-from augmentation import augment_sequence
+from utils.augmentation.augment_functions import augment_sequence
 
 
 def augment_dataset(
