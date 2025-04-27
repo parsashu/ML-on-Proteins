@@ -3,6 +3,7 @@ import torch
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+import os
 
 dataset = "datasets/train_dataset_augmented.tsv"
 embeddings_file = "datasets/sequence_embeddings.csv"
@@ -42,7 +43,6 @@ def embed_dataset(
     dataset,
     embeddings_file,
     batch_size=100,
-    checkpoint_interval=1000,
     max_sequence_length=6000,
 ):
     """
@@ -62,59 +62,42 @@ def embed_dataset(
 
     print("Generating embeddings for new proteins...")
     total_embeddings = 0
-    embeddings = []
-    sequences = []
-    embedding_strings = []
+    batch_data = []
 
     for idx, row in tqdm(df.iterrows(), total=len(df), desc="Processing sequences"):
         sequence = row["Protein_Sequence"]
         embedding = generate_embedding(sequence)
 
         if embedding is not None:
-            embeddings.append(embedding)
-            sequences.append(sequence)
-            embedding_strings.append(str(embedding))
+            batch_data.append(
+                {"Protein_Sequence": sequence, "Embedding": str(embedding)}
+            )
             total_embeddings += 1
 
-        # Save embeddings to file every checkpoint_interval
-        if (idx + 1) % checkpoint_interval == 0:
-            new_embeddings_df = pd.DataFrame(
-                {
-                    "Protein_Sequence": sequences,
-                    "Embedding": embedding_strings,
-                }
-            )
-            combined_df = pd.concat([existing_df, new_embeddings_df], ignore_index=True)
-            combined_df.to_csv(embeddings_file, index=False)
-            existing_df = combined_df
-            sequences = []
-            embedding_strings = []
-            embeddings = []
+        # Save embeddings to file every batch_size
+        if (idx + 1) % batch_size == 0 or (idx + 1) == len(df):
+            if batch_data:
+                new_embeddings_df = pd.DataFrame(batch_data)
+                # Append new embeddings to the file without reading the entire file again
+                new_embeddings_df.to_csv(
+                    embeddings_file,
+                    mode="a",
+                    header=not os.path.exists(embeddings_file),
+                    index=False,
+                )
+                batch_data = []
 
-        # Clear memory after each batch
-        if (idx + 1) % batch_size == 0:
-            torch.cuda.empty_cache() if torch.cuda.is_available() else None
-
-    # Save any remaining embeddings
-    if len(sequences) > 0:
-        new_embeddings_df = pd.DataFrame(
-            {
-                "Protein_Sequence": sequences,
-                "Embedding": embedding_strings,
-            }
-        )
-        combined_df = pd.concat([existing_df, new_embeddings_df], ignore_index=True)
-        combined_df.to_csv(embeddings_file, index=False)
+            # Clear memory after each batch
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
 
     print(f"Completed! Generated embeddings for {total_embeddings} new proteins")
-    print(f"Total proteins with embeddings: {len(combined_df)}")
     print(f"Results saved to {embeddings_file}")
 
 
 embed_dataset(
     dataset,
     embeddings_file,
-    batch_size=10,
-    checkpoint_interval=100,
+    batch_size=100,
     max_sequence_length=100,
 )
