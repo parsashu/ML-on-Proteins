@@ -9,7 +9,9 @@ from sklearn.metrics import mean_squared_error, r2_score
 from tqdm import tqdm
 from sklearn.svm import SVR
 from sklearnex import patch_sklearn
-
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import Pipeline
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
@@ -49,12 +51,12 @@ models = {
     #     ("Cm", DecisionTreeRegressor(random_state=42)),
     #     ("deltaG", DecisionTreeRegressor(random_state=42)),
     # ],
-    "Random Forest": [
-        ("Tm", RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1, warm_start=True)),
-        ("m", RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1, warm_start=True)),
-        ("Cm", RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1, warm_start=True)),
-        ("deltaG", RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1, warm_start=True)),
-    ],
+    # "Random Forest": [
+    #     ("Tm", RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1, warm_start=True)),
+    #     ("m", RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1, warm_start=True)),
+    #     ("Cm", RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1, warm_start=True)),
+    #     ("deltaG", RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1, warm_start=True)),
+    # ],
     # "Gradient Boosting": [
     #     ("Tm", GradientBoostingRegressor(n_estimators=100, random_state=42)),
     #     ("m", GradientBoostingRegressor(n_estimators=100, random_state=42)),
@@ -67,12 +69,32 @@ models = {
     #     ("Cm", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
     #     ("deltaG", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
     # ],
-    # "Neural Network": [
-    #     ("Tm", nn.Linear(X1_train.shape[1], 1)),
-    #     ("m", nn.Linear(X2_train.shape[1], 1)),
-    #     ("Cm", nn.Linear(X3_train.shape[1], 1)),
-    #     ("deltaG", nn.Linear(X4_train.shape[1], 1)),
-    # ],
+    "Polynomial Regression": [
+        (
+            "Tm",
+            Pipeline(
+                [("poly", PolynomialFeatures(degree=2)), ("linear", LinearRegression())]
+            ),
+        ),
+        (
+            "m",
+            Pipeline(
+                [("poly", PolynomialFeatures(degree=2)), ("linear", LinearRegression())]
+            ),
+        ),
+        (
+            "Cm",
+            Pipeline(
+                [("poly", PolynomialFeatures(degree=2)), ("linear", LinearRegression())]
+            ),
+        ),
+        (
+            "deltaG",
+            Pipeline(
+                [("poly", PolynomialFeatures(degree=2)), ("linear", LinearRegression())]
+            ),
+        ),
+    ],
 }
 
 train_data = [
@@ -112,29 +134,29 @@ for model_type, model_list in models.items():
         mse_history = []
         rmse_history = []
         r2_history = []
-        
+
         # Training loop with 20 epochs
         for epoch in tqdm(range(20), desc=f"Training {target}", leave=False):
             model.fit(X_train, y_train)
             y_pred = model.predict(X_test)
-            
+
             # Calculate metrics
             mse = mean_squared_error(y_test, y_pred)
             rmse = np.sqrt(mse)
             r2 = r2_score(y_test, y_pred)
-            
+
             # Store metrics
             mse_history.append(mse)
             rmse_history.append(rmse)
             r2_history.append(r2)
-            
+
             # Print progress every 5 epochs
             if (epoch + 1) % 5 == 0:
                 print(f"\nEpoch {epoch + 1}/20 - {model_type} - {target}")
                 print(f"MSE: {mse:.4f} (Best: {min(mse_history):.4f})")
                 print(f"RMSE: {rmse:.4f} (Best: {min(rmse_history):.4f})")
                 print(f"R2 Score: {r2:.4f} (Best: {max(r2_history):.4f})")
-        
+
         # Print final metrics
         print(f"\nFinal Metrics for {model_type} - {target}:")
         print(f"Best MSE: {min(mse_history):.4f}")

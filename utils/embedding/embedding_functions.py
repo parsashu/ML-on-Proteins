@@ -61,10 +61,12 @@ def embed_dataset(
     print(f"Number of new unique sequences to process: {len(df)}")
 
     print("Generating embeddings for new proteins...")
+    i = 0
     total_embeddings = 0
     batch_data = []
 
-    for idx, row in tqdm(df.iterrows(), total=len(df), desc="Processing sequences"):
+    for _, row in tqdm(df.iterrows(), total=len(df), desc="Processing sequences"):
+        i += 1
         sequence = row["Protein_Sequence"]
         embedding = generate_embedding(sequence)
 
@@ -75,10 +77,9 @@ def embed_dataset(
             total_embeddings += 1
 
         # Save embeddings to file every batch_size
-        if (idx + 1) % batch_size == 0 or (idx + 1) == len(df):
+        if (i + 1) % batch_size == 0 or i == len(df):
             if batch_data:
                 new_embeddings_df = pd.DataFrame(batch_data)
-                # Append new embeddings to the file without reading the entire file again
                 new_embeddings_df.to_csv(
                     embeddings_file,
                     mode="a",
