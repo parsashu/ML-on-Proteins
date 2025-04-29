@@ -5,9 +5,6 @@ import pandas as pd
 from tqdm import tqdm
 import os
 
-dataset = "datasets/train_dataset_augmented.tsv"
-embeddings_file = "datasets/sequence_embeddings.csv"
-
 
 print("Loading protein language model and tokenizer...")
 model_name = "facebook/esm2_t6_8M_UR50D"
@@ -39,20 +36,22 @@ def generate_embedding(sequence, normalize=True):
     return embedding
 
 
-def embed_dataset(
-    dataset,
-    embeddings_file,
-    batch_size=100,
-    max_sequence_length=6000,
-):
+def embed_dataset(dataset, embeddings_file, batch_size=100, max_sequence_length=6000):
     """
     Generate embeddings only for sequences not already in embeddings file
     Process sequences in smaller batches to manage memory usage
     Skip sequences longer than max_sequence_length
     """
     df = pd.read_csv(dataset, sep="\t", low_memory=False)
-    existing_df = pd.read_csv(embeddings_file)
-    existing_sequences = set(existing_df["Protein_Sequence"].tolist())
+
+    if not os.path.exists(embeddings_file):
+        pd.DataFrame(columns=["Protein_Sequence", "Embedding"]).to_csv(
+            embeddings_file, index=False
+        )
+        existing_sequences = set()
+    else:
+        existing_df = pd.read_csv(embeddings_file)
+        existing_sequences = set(existing_df["Protein_Sequence"].tolist())
     print(f"Found {len(existing_sequences)} existing sequences with embeddings")
 
     df = df[~df["Protein_Sequence"].isin(existing_sequences)]
@@ -96,9 +95,16 @@ def embed_dataset(
     print(f"Results saved to {embeddings_file}")
 
 
+seq_extracted = "datasets/raw/merged_dataset.tsv"
+dataset = "datasets/protein_dataset.tsv"
+all_features = "datasets/features.csv"
+train_path = "datasets/train_dataset.tsv"
+test_path = "datasets/test_dataset.tsv"
+train_augmented = "datasets/train_dataset_augmented.tsv"
+embeddings_train = "datasets/embeddings_train.csv"
+embeddings_test = "datasets/embeddings_test.csv"
+
+
 embed_dataset(
-    dataset,
-    embeddings_file,
-    batch_size=100,
-    max_sequence_length=100,
+    train_augmented, embeddings_train, batch_size=50, max_sequence_length=6000
 )
