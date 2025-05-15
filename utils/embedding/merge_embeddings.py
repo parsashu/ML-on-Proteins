@@ -13,7 +13,7 @@ train_processed = "datasets/train_processed.csv"
 test_processed = "datasets/test_processed.csv"
 
 
-def merge_embeddings(dataset_path, embeddings_path, output_path, batch_size=100000):
+def merge_embeddings(dataset_path, embeddings_path, output_path, batch_size=50000):
     df = pd.read_csv(dataset_path, sep="\t", low_memory=False)
     embeddings_df = pd.read_csv(embeddings_path)
 
@@ -84,11 +84,11 @@ def merge_embeddings(dataset_path, embeddings_path, output_path, batch_size=1000
             features = []  # Clear the features list
 
 
-merge_embeddings(
-    dataset_path=train_augmented,
-    embeddings_path=embeddings_train,
-    output_path=train_processed,
-)
+# merge_embeddings(
+#     dataset_path=train_augmented,
+#     embeddings_path=embeddings_train,
+#     output_path=train_processed,
+# )
 
 # merge_embeddings(
 #     dataset_path=test_path,
