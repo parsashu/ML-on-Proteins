@@ -95,12 +95,12 @@ def embed_dataset(dataset, embeddings_file, batch_size=100, max_sequence_length=
     print(f"Results saved to {embeddings_file}")
 
 
-dataset = "datasets/protein_dataset.tsv"
-train_path = "datasets/train_dataset.tsv"
-test_path = "datasets/test_dataset.tsv"
-train_augmented = "datasets/train_dataset_augmented.tsv"
-embeddings_train = "datasets/embeddings_train.csv"
-embeddings_test = "datasets/embeddings_test.csv"
+# dataset = "datasets/protein_dataset.tsv"
+# train_path = "datasets/train_dataset.tsv"
+# test_path = "datasets/test_dataset.tsv"
+# train_augmented = "datasets/train_dataset_augmented.tsv"
+# embeddings_train = "datasets/embeddings_train.csv"
+# embeddings_test = "datasets/embeddings_test.csv"
 
 
-embed_dataset(train_augmented, embeddings_train, batch_size=1, max_sequence_length=8000)
+# embed_dataset(train_augmented, embeddings_train, batch_size=1, max_sequence_length=8000)
