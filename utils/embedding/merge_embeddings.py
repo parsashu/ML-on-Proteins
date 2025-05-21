@@ -8,8 +8,10 @@ import os
 test_path = "datasets/test_dataset.tsv"
 train_augmented = "datasets/train_dataset_augmented.tsv"
 embeddings_train = "datasets/embeddings_train.csv"
+embeddings_val = "datasets/embeddings_val.csv"
 embeddings_test = "datasets/embeddings_test.csv"
 train_processed = "datasets/train_processed.csv"
+val_processed = "datasets/val_processed.csv"
 test_processed = "datasets/test_processed.csv"
 
 

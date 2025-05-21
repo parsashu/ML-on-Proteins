@@ -3,7 +3,19 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-def histogram(file_path):
+def histogram(
+    file_path,
+    columns_to_plot=[
+        "ASA",
+        "pH",
+        "T_(C)",
+        "Tm_(C)",
+        "m_(kcal/mol/M)",
+        "Cm_(M)",
+        "∆G_H2O_(kcal/mol)",
+        "REVERSIBILITY",
+    ],
+):
     """Plot histograms for specified columns in the protein dataset."""
     df = pd.read_csv(file_path, sep="\t", low_memory=False)
 
@@ -64,17 +76,6 @@ def histogram(file_path):
             fontsize=10,
             bbox=dict(boxstyle="round", facecolor="white", alpha=0.8),
         )
-
-    columns_to_plot = [
-        "ASA",
-        "pH",
-        "T_(C)",
-        "Tm_(C)",
-        "m_(kcal/mol/M)",
-        "Cm_(M)",
-        "∆G_H2O_(kcal/mol)",
-        "REVERSIBILITY",
-    ]
 
     num_cols = 3
     num_rows = (len(columns_to_plot) + num_cols - 1) // num_cols
