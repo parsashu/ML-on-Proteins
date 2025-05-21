@@ -34,8 +34,8 @@ def merge_embeddings(dataset_path, embeddings_path, output_path, batch_size=5000
         embedding_dict[row["Protein_Sequence"]] = row["Embedding"]
 
     features = []
-    basic_columns = ["ASA", "pH", "T_(C)", "Coil", "Helix", "Sheet", "Turn"]
-    additional_columns = ["Tm_(C)", "m_(kcal/mol/M)", "Cm_(M)", "∆G_H2O_(kcal/mol)"]
+    basic_columns = ["ASA", "pH", "Coil", "Helix", "Sheet", "Turn"]
+    additional_columns = ["Tm_(C)"]
     embedding_columns = [f"embed_{i}" for i in range(320)]
     all_columns = basic_columns + additional_columns + embedding_columns
 
@@ -49,29 +49,18 @@ def merge_embeddings(dataset_path, embeddings_path, output_path, batch_size=5000
     ):
         asa = row["ASA"]
         ph = row["pH"]
-        temp = row["T_(C)"]
-
         tm = row["Tm_(C)"] if not pd.isna(row["Tm_(C)"]) else None
-        m_value = row["m_(kcal/mol/M)"] if not pd.isna(row["m_(kcal/mol/M)"]) else None
-        cm = row["Cm_(M)"] if not pd.isna(row["Cm_(M)"]) else None
-        delta_g_h2o = (
-            row["∆G_H2O_(kcal/mol)"] if not pd.isna(row["∆G_H2O_(kcal/mol)"]) else None
-        )
 
         sec_str_encoded = eval(row["SEC_STR_ENCODED"])
         protein_seq = row["Protein_Sequence"]
 
-        embedding = embedding_dict.get(protein_seq, np.zeros(320))
+        embedding = embedding_dict.get(protein_seq)
+        # Not saving samples with no embedding
         if embedding is None:
             print(f"No embedding found for protein sequence: {protein_seq}")
-            embedding = np.zeros(320)
+            continue
 
-        feature_vector = (
-            [asa, ph, temp]
-            + sec_str_encoded
-            + [tm, m_value, cm, delta_g_h2o]
-            + embedding.tolist()
-        )
+        feature_vector = [asa, ph] + sec_str_encoded + [tm] + embedding.tolist()
         features.append(feature_vector)
 
         # Process and save in batches
