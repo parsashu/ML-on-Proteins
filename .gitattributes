@@ -1,6 +1,0 @@
-datasets/*.csv.gz filter=lfs diff=lfs merge=lfs -text
-datasets/features.csv filter=lfs diff=lfs merge=lfs -text
-datasets/phase2/train/y_train.csv filter=lfs diff=lfs merge=lfs -text
-datasets/phase2/test/y_test.csv filter=lfs diff=lfs merge=lfs -text
-datasets/phase1/train/X1_train.csv filter=lfs diff=lfs merge=lfs -text
-datasets/sequence_embeddings.csv filter=lfs diff=lfs merge=lfs -text
