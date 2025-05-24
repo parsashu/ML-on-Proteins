@@ -8,7 +8,7 @@ from tqdm import tqdm
 import pandas as pd
 import matplotlib.pyplot as plt
 import joblib
-
+from sklearn.metrics import r2_score
 
 save_path = "../models/"
 
@@ -142,11 +142,14 @@ class NeuralNetwork(nn.Module):
         self.losses["val"].append(avg_val_loss)
         return avg_val_loss
 
-    def predict(self, x):
+    def predict(self, dataloader):
         self.eval()
+        predictions = []
         with torch.no_grad():
-            predictions = self(x)
-        return predictions
+            for x_batch, _ in dataloader:
+                batch_predictions = self(x_batch)
+                predictions.append(batch_predictions)
+        return torch.cat(predictions, dim=0)
 
     def test(self, test_loader):
         X_test, y_test = test_loader.dataset[:][0], test_loader.dataset[:][1]
@@ -199,8 +202,8 @@ def plot_validation_curve(
         val_scores.append(current_model.losses["val"][-1])
 
     plt.figure(figsize=(10, 6))
-    plt.semilogx(param_range, train_scores, label="Training score", marker="o")
-    plt.semilogx(param_range, val_scores, label="Validation score", marker="o")
+    plt.plot(param_range, train_scores, label="Training score", marker="o")
+    plt.plot(param_range, val_scores, label="Validation score", marker="o")
     plt.xlabel(param_name)
     plt.ylabel("Score")
     plt.title(f"Validation Curve for {param_name}")
@@ -212,8 +215,8 @@ def plot_validation_curve(
 plot_validation_curve(
     train_loader,
     val_loader,
-    param_name="dropout_rate",
-    param_range=np.linspace(0, 0.5, 6),
+    param_name="max_width",
+    param_range=np.array([128, 256, 512, 768, 1024, 1200, 1536, 2048, 2304]),
 )
 
 
@@ -233,12 +236,18 @@ def plot_learning_curve(
         current_model = NeuralNetwork()
         current_model.fit(subset_loader, val_loader, epochs)
 
-        train_scores.append(current_model.losses["train"][-1])
-        val_scores.append(current_model.losses["val"][-1])
+        train_preds = current_model.predict(subset_loader)
+        val_preds = current_model.predict(val_loader)
+
+        train_r2 = r2_score(subset_loader.dataset.tensors[1].cpu().numpy(), train_preds)
+        val_r2 = r2_score(val_loader.dataset.tensors[1].cpu().numpy(), val_preds)
+
+        train_scores.append(train_r2)
+        val_scores.append(val_r2)
 
     plt.figure(figsize=(10, 6))
-    plt.plot(train_sizes, train_scores, label="Training score", marker="o")
-    plt.plot(train_sizes, val_scores, label="Validation score", marker="o")
+    plt.plot(train_sizes, train_scores, label="Training", marker="o")
+    plt.plot(train_sizes, val_scores, label="Validation", marker="o")
     plt.xlabel("Training set size")
     plt.ylabel("Score")
     plt.title("Learning Curve")
