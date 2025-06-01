@@ -15,6 +15,7 @@ scikit-learn-intelex>=0.1.0
 # Deep Learning and AI
 torch>=1.9.0
 transformers>=4.30.0
+catboost[gpu]>=1.2.0
 
 # Bioinformatics
 biopython>=1.79
