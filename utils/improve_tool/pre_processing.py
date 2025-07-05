@@ -12,6 +12,7 @@ import joblib
 def original_to_mutated(json_data):
     original_seq = json_data["Protein_Sequence"]
     mutated_seqs = approved_mutated_sequences(original_seq)
+    seqs_list = [original_seq] + mutated_seqs
 
     base_features = {
         "ASA": json_data["ASA"],
@@ -23,19 +24,14 @@ def original_to_mutated(json_data):
     }
 
     rows = []
-    # Add the original sequence first
-    original_row = base_features.copy()
-    original_row["Protein_Sequence"] = original_seq
-    rows.append(original_row)
-
     # Add mutated sequences
-    for seq in mutated_seqs:
+    for seq in seqs_list:
         row = base_features.copy()
         row["Protein_Sequence"] = seq
         rows.append(row)
 
     df = pd.DataFrame(rows)
-    return df
+    return df, seqs_list
 
 
 def normalize(df):
@@ -57,8 +53,8 @@ def normalize(df):
 
 
 def pre_processing(json_data):
-    df = original_to_mutated(json_data)
+    df, seqs_list = original_to_mutated(json_data)
     embeddings_df = embed_dataset_without_save(df)
     X = merge_embeddings_without_save(df, embeddings_df)
     X_norm = normalize(X)
-    return X_norm
+    return X_norm, seqs_list
