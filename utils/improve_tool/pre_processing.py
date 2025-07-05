@@ -43,35 +43,22 @@ def normalize(df):
     asa_scaler = joblib.load("./models/scalers/asa_scaler.joblib")
     asa_col = "ASA"
     cols_to_normalize = [
-        col for col in df.columns if col not in ["ASA", "Coil", "Helix", "Sheet", "Turn"]
+        col
+        for col in df.columns
+        if col not in ["ASA", "Coil", "Helix", "Sheet", "Turn"]
     ]
-    
+
     # Normalize ASA separately
     df[asa_col] = asa_scaler.transform(df[[asa_col]])
-    
+
     # Normalize other features
     df[cols_to_normalize] = scaler.transform(df[cols_to_normalize])
     return df
 
 
-def pre_processing(df):
+def pre_processing(json_data):
+    df = original_to_mutated(json_data)
     embeddings_df = embed_dataset_without_save(df)
     X = merge_embeddings_without_save(df, embeddings_df)
     X_norm = normalize(X)
     return X_norm
-
-
-json_data = {
-    "ASA": 9.0,
-    "pH": 6.0,
-    "Tm_(C)": 80.4,
-    "Coil": 1,
-    "Helix": 0,
-    "Sheet": 0,
-    "Turn": 0,
-    "Protein_Sequence": "MGDVEKGKKIFVQKCAQCHTVEKGGKHKTGPNLHGLFGRKTGQAPGFTYTDANKNKGITWKEETLMEYLENPKKYIPGTKMIFAGIKKKTEREDLIAYLKKATNE",
-}
-
-df = original_to_mutated(json_data)
-X_norm = pre_processing(df)
-print(X_norm)
