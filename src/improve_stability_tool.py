@@ -30,7 +30,23 @@ def improve_stability(json_data):
                 changed_position = i + 1
                 break
 
-    return best_seq, changed_position, original_aa, changed_aa, is_changed
+    # Calculate the change in Tm
+    tm_change = None
+    if is_changed:
+        original_prediction = predictions[0]
+        best_prediction = predictions[best_index]
+        tm_change = best_prediction - original_prediction
+    else:
+        tm_change = 0.0
+
+    return {
+        "best_sequence": best_seq,
+        "changed_position": changed_position,
+        "original_amino_acid": original_aa,
+        "changed_amino_acid": changed_aa,
+        "tm_change": tm_change,
+        "is_changed": is_changed,
+    }
 
 
 json_data = {
@@ -44,10 +60,5 @@ json_data = {
     "Protein_Sequence": "MGDVEKGKKIFVQKCAQCHTVEKGGKHKTGPNLHGLFGRKTGQAPGFTYTDANKNKGITWKEETLMEYLENPKKYIPGTKMIFAGIKKKTEREDLIAYLKKATNE",
 }
 
-best_seq, changed_position, original_aa, changed_aa, is_changed = improve_stability(json_data)
-print(f"Original protein sequence: {json_data['Protein_Sequence']}")
-print(f"Best protein sequence: {best_seq}")
-print(f"Changed position: {changed_position}")
-print(f"Original amino acid: {original_aa}")
-print(f"New amino acid: {changed_aa}")
-print(f"Is changed: {is_changed}")
+result = improve_stability(json_data)
+print(result)
