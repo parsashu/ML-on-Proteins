@@ -75,6 +75,53 @@ def merge_embeddings(dataset_path, embeddings_path, output_path, batch_size=5000
             features = []  # Clear the features list
 
 
+def merge_embeddings_without_save(df, embeddings_df, batch_size=10000):
+
+    embeddings_df["Embedding"] = embeddings_df["Embedding"].apply(
+        lambda x: np.array(
+            [float(num) for num in re.findall(r"-?\d+\.?\d*e?[-+]?\d*", x)]
+        )
+    )
+
+    embedding_dict = {}
+    for _, row in tqdm(
+        embeddings_df.iterrows(),
+        total=len(embeddings_df),
+        desc="Building embedding dictionary",
+    ):
+        embedding_dict[row["Protein_Sequence"]] = row["Embedding"]
+
+    features = []
+    basic_columns = ["ASA", "pH", "Coil", "Helix", "Sheet", "Turn"]
+    embedding_columns = [f"embed_{i}" for i in range(320)]
+    all_columns = basic_columns + embedding_columns
+
+    for i, (_, row) in enumerate(
+        tqdm(df.iterrows(), total=len(df), desc="Processing records")
+    ):
+        asa = row["ASA"]
+        ph = row["pH"]
+
+        sec_str_encoded = eval(row["SEC_STR_ENCODED"])
+        protein_seq = row["Protein_Sequence"]
+
+        embedding = embedding_dict.get(protein_seq)
+        # Not saving samples with no embedding
+        if embedding is None:
+            print(f"No embedding found for protein sequence: {protein_seq}")
+            continue
+
+        feature_vector = [asa, ph] + sec_str_encoded + embedding.tolist()
+        features.append(feature_vector)
+
+        # Process and save in batches
+        if (i + 1) % batch_size == 0 or i == len(df) - 1:
+            features_df = pd.DataFrame(features, columns=all_columns)
+            features = []  # Clear the features list
+            
+    return features_df
+
+
 # merge_embeddings(
 #     dataset_path=train_augmented,
 #     embeddings_path=embeddings_train,
