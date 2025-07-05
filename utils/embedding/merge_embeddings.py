@@ -78,8 +78,12 @@ def merge_embeddings(dataset_path, embeddings_path, output_path, batch_size=5000
 def merge_embeddings_without_save(df, embeddings_df, batch_size=10000):
 
     embeddings_df["Embedding"] = embeddings_df["Embedding"].apply(
-        lambda x: np.array(
-            [float(num) for num in re.findall(r"-?\d+\.?\d*e?[-+]?\d*", x)]
+        lambda x: (
+            x
+            if isinstance(x, np.ndarray)
+            else np.array(
+                [float(num) for num in re.findall(r"-?\d+\.?\d*e?[-+]?\d*", str(x))]
+            )
         )
     )
 
@@ -101,8 +105,11 @@ def merge_embeddings_without_save(df, embeddings_df, batch_size=10000):
     ):
         asa = row["ASA"]
         ph = row["pH"]
+        coil = row["Coil"]
+        helix = row["Helix"]
+        sheet = row["Sheet"]
+        turn = row["Turn"]
 
-        sec_str_encoded = eval(row["SEC_STR_ENCODED"])
         protein_seq = row["Protein_Sequence"]
 
         embedding = embedding_dict.get(protein_seq)
@@ -111,14 +118,14 @@ def merge_embeddings_without_save(df, embeddings_df, batch_size=10000):
             print(f"No embedding found for protein sequence: {protein_seq}")
             continue
 
-        feature_vector = [asa, ph] + sec_str_encoded + embedding.tolist()
+        feature_vector = [asa, ph, coil, helix, sheet, turn] + embedding.tolist()
         features.append(feature_vector)
 
         # Process and save in batches
         if (i + 1) % batch_size == 0 or i == len(df) - 1:
             features_df = pd.DataFrame(features, columns=all_columns)
             features = []  # Clear the features list
-            
+
     return features_df
 
 
