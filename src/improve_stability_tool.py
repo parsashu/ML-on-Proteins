@@ -49,25 +49,25 @@ def improve_stability(json_data):
     }
 
 
-json_data = {
-    "ASA": 9.0,
-    "pH": 6.0,
-    "Tm_(C)": 80.4,
-    "Coil": 1,
-    "Helix": 0,
-    "Sheet": 0,
-    "Turn": 0,
-    "Protein_Sequence": "MGDVEKGKKIFVQKCAQCHTVEKGGKHKTGPNLHGLFGRKTGQAPGFTYTDANKNKGITWKEETLMEYLENPKKYIPGTKMIFAGIKKKTEREDLIAYLKKATNE",
-}
+# json_data = {
+#     "ASA": 9.0,
+#     "pH": 6.0,
+#     "Tm_(C)": 80.4,
+#     "Coil": 1,
+#     "Helix": 0,
+#     "Sheet": 0,
+#     "Turn": 0,
+#     "Protein_Sequence": "MGDVEKGKKIFVQKCAQCHTVEKGGKHKTGPNLHGLFGRKTGQAPGFTYTDANKNKGITWKEETLMEYLENPKKYIPGTKMIFAGIKKKTEREDLIAYLKKATNE",
+# }
 
-result = improve_stability(json_data)
-print(result)
+# result = improve_stability(json_data)
+# print(result)
 
-{
-    "best_sequence": "MGDVEKGKKIFVQKCAQCETVEKGGKHKTGPNLHGLFGRKTGQAPGFTYTDANKNKGITWKEETLMEYLENPKKYIPGTKMIFAGIKKKTEREDLIAYLKKATNE",
-    "changed_position": 19,
-    "original_amino_acid": "H",
-    "changed_amino_acid": "E",
-    "tm_change": np.float64(10.839448094582622),
-    "is_changed": True,
-}
+# output = {
+#     "best_sequence": "MGDVEKGKKIFVQKCAQCETVEKGGKHKTGPNLHGLFGRKTGQAPGFTYTDANKNKGITWKEETLMEYLENPKKYIPGTKMIFAGIKKKTEREDLIAYLKKATNE",
+#     "changed_position": 19,
+#     "original_amino_acid": "H",
+#     "changed_amino_acid": "E",
+#     "tm_change": np.float64(10.839448094582622),
+#     "is_changed": True,
+# }

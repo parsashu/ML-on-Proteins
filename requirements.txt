@@ -24,6 +24,10 @@ biopython>=1.79
 requests>=2.25.0
 urllib3>=1.26.0
 
+# Web API framework
+flask>=2.0.0
+flask-cors>=3.0.0
+
 # Utilities
 tqdm>=4.62.0
 
