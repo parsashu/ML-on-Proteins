@@ -62,3 +62,12 @@ json_data = {
 
 result = improve_stability(json_data)
 print(result)
+
+{
+    "best_sequence": "MGDVEKGKKIFVQKCAQCETVEKGGKHKTGPNLHGLFGRKTGQAPGFTYTDANKNKGITWKEETLMEYLENPKKYIPGTKMIFAGIKKKTEREDLIAYLKKATNE",
+    "changed_position": 19,
+    "original_amino_acid": "H",
+    "changed_amino_acid": "E",
+    "tm_change": np.float64(10.839448094582622),
+    "is_changed": True,
+}
