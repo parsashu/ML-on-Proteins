@@ -7,10 +7,10 @@ from utils.improve_tool.pre_processing import pre_processing
 from utils.improve_tool.predict import predict_stability
 
 
-def improve_stability(json_data):
+def improve_stability(json_data, use_gpu=True):
     original_seq = json_data["Protein_Sequence"]
-    X_norm, seqs_list = pre_processing(json_data)
-    predictions = predict_stability(X_norm)
+    X_norm, seqs_list = pre_processing(json_data, use_gpu=use_gpu)
+    predictions = predict_stability(X_norm, use_gpu=use_gpu)
 
     # Find the index with the highest prediction
     best_index = np.argmax(predictions)

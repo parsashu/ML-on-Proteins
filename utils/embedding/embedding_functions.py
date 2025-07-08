@@ -94,14 +94,14 @@ def embed_dataset(dataset, embeddings_file, batch_size=100, max_sequence_length=
     print(f"Results saved to {embeddings_file}")
 
 
-def embed_dataset_without_save(df, batch_size=10000):
+def embed_dataset_without_save(df, batch_size=10000, use_gpu=True):
 
     print("Loading protein language model and tokenizer...")
     model_name = "facebook/esm2_t6_8M_UR50D"
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModel.from_pretrained(model_name)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() and use_gpu else "cpu")
     model = model.to(device)
     print(f"Using device: {device}")
 

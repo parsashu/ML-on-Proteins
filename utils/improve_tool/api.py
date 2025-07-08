@@ -84,7 +84,7 @@ def improve_stability_endpoint():
             return jsonify({"error": "Protein sequence cannot be empty"}), 400
 
         # Call the improve_stability function
-        result = improve_stability(json_data)
+        result = improve_stability(json_data, use_gpu=False)
 
         return jsonify({"success": True, "data": result})
 

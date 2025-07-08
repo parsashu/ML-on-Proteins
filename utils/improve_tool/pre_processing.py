@@ -52,9 +52,9 @@ def normalize(df):
     return df
 
 
-def pre_processing(json_data):
+def pre_processing(json_data, use_gpu=True):
     df, seqs_list = original_to_mutated(json_data)
-    embeddings_df = embed_dataset_without_save(df)
+    embeddings_df = embed_dataset_without_save(df, use_gpu=use_gpu)
     X = merge_embeddings_without_save(df, embeddings_df)
     X_norm = normalize(X)
     return X_norm, seqs_list
