@@ -12,6 +12,9 @@ statsmodels>=0.13.0
 scikit-learn>=0.24.0
 scikit-learn-intelex>=0.1.0
 
+# Model serialization and utilities
+joblib>=1.1.0
+
 # Deep Learning and AI
 torch>=1.9.0
 transformers>=4.30.0
@@ -28,10 +31,10 @@ urllib3>=1.26.0
 flask>=2.0.0
 flask-cors>=3.0.0
 
-# Utilities
+# Progress bars and utilities
 tqdm>=4.62.0
 
-# Additional packages
+# Text processing
 regex>=2023.0.0
 
 # Optional: RAPIDS (requires NVIDIA GPU)
