@@ -60,7 +60,7 @@ def improve_stability(json_data, use_gpu=True):
 #     "Protein_Sequence": "MGDVEKGKKIFVQKCAQCHTVEKGGKHKTGPNLHGLFGRKTGQAPGFTYTDANKNKGITWKEETLMEYLENPKKYIPGTKMIFAGIKKKTEREDLIAYLKKATNE",
 # }
 
-# result = improve_stability(json_data)
+# result = improve_stability(json_data, use_gpu=False)
 # print(result)
 
 # output = {

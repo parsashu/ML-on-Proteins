@@ -1,11 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import sys
-import os
 import json
 import numpy as np
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from src.improve_stability_tool import improve_stability
 
 app = Flask(__name__)
