@@ -30,6 +30,22 @@ def health_check():
     return jsonify({"status": "healthy", "message": "Protein Stability API is running"})
 
 
+@app.route("/status", methods=["GET"])
+def status_check():
+    """Status check endpoint"""
+    return jsonify(
+        {
+            "status": "processing",
+            "message": "API is running and ready to process requests",
+            "processing_time": "1-2 minutes for 371 mutations",
+            "endpoints": {
+                "health": "/health",
+                "improve_stability": "/improve-stability",
+            },
+        }
+    )
+
+
 @app.route("/improve-stability", methods=["POST"])
 def improve_stability_endpoint():
     """
